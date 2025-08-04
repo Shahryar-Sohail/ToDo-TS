@@ -6,7 +6,7 @@ function App() {
 
 
   return (
-    <div className="w-screen h-screen bg-teal-200 ">
+    <div className="w-screen h-screen bg-teal-200 px-10 sm:px-2">
       <Home/>
     </div>
   )
