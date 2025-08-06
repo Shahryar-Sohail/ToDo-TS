@@ -2,6 +2,9 @@
 import { useState } from "react"
 import { CardContext } from './CardContext'
 import Count from "./Count";
+import { useDispatch, useSelector } from 'react-redux'
+import { addCard, deleteCard, setCards } from '../store/slices/TodoSlice'
+import type { RootState } from '../store/index.tsx'
 const Home = () => {
 
   type Card = {
@@ -10,7 +13,8 @@ const Home = () => {
     details: string;
   }
 
-  const [cards, setCards] = useState<Card[]>([])
+  const dispatch = useDispatch()
+  const cards = useSelector((state: RootState) => state.todo.cards)
   const [title, setTitle] = useState('')
   const [details, setDetails] = useState('')
   const [search, setSearch] = useState('')
@@ -24,54 +28,53 @@ const Home = () => {
     }
     const newCard: Card = {
       id: Date.now(),
-      title: title,
-      details: details
+      title,
+      details
     }
-    setCards([...cards, newCard])
+    dispatch(addCard(newCard))
     setTitle('')
     setDetails('')
   }
   const handleDelete = (id: number) => {
-    const updatedCards = cards.filter(card => card.id !== id)
-    setCards(updatedCards)
+    dispatch(deleteCard(id))
   }
   const handleEdit = (id: number) => {
     const cardToEdit = cards.find(card => card.id === id)
     if (cardToEdit) {
       setTitle(cardToEdit.title)
       setDetails(cardToEdit.details)
-      handleDelete(id)
+      dispatch(deleteCard(id))
     }
   }
   const handleMoveUp = (id: number) => {
     const index = cards.findIndex(card => card.id === id)
     if (index <= 0) return
 
-    const updated: Card[] = [...cards];
+    const updated = [...cards]
+    const temp = updated[index]
+    updated[index] = updated[index - 1]
+    updated[index - 1] = temp
 
-    const temp = updated[index];
-    updated[index] = updated[index - 1];
-    updated[index - 1] = temp;
-    setCards(updated)
+    dispatch(setCards(updated))
   }
   const handleMoveDown = (id: number) => {
     const index = cards.findIndex(card => card.id === id)
-    if (index === -1 || index === cards.length - 1) return;
+    if (index === -1 || index === cards.length - 1) return
 
-    const updated: Card[] = [...cards];
+    const updated = [...cards]
+    const temp = updated[index]
+    updated[index] = updated[index + 1]
+    updated[index + 1] = temp
 
-    const temp = updated[index];
-    updated[index] = updated[index + 1];
-    updated[index + 1] = temp;
-    setCards(updated)
+    dispatch(setCards(updated))
   }
   const handleSort = () => {
     const sortedCards = [...cards].sort((a, b) =>
       sortAsc ? b.title.localeCompare(a.title) : a.title.localeCompare(b.title)
-    );
-    setCards(sortedCards);
-    setSortAsc(!sortAsc);
-  };
+    )
+    dispatch(setCards(sortedCards))
+    setSortAsc(!sortAsc)
+  }
 
   return (
     <CardContext.Provider value={{ cards }}>
@@ -113,7 +116,7 @@ const Home = () => {
         </div>
 
       </div>
-      <Count  /> 
+      <Count />
     </CardContext.Provider>
   )
 }

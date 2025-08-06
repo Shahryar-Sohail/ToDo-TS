@@ -1,18 +1,34 @@
-import { createSlice } from "@reduxjs/toolkit"
+import { createSlice} from '@reduxjs/toolkit'
+import type { PayloadAction } from '@reduxjs/toolkit'
+type Card = {
+  id: number;
+  title: string;
+  details: string;
+}
 
-const TodoSlice = createSlice ({
-  name: "todo",
-  initialState: [],
-  reducers:{
-    addTodo(state,action){
+type TodoState = {
+  cards: Card[]
+}
 
+const initialState: TodoState = {
+  cards: []
+}
+
+const todoSlice = createSlice({
+  name: 'todo',
+  initialState,
+  reducers: {
+    addCard: (state, action: PayloadAction<Card>) => {
+      state.cards.push(action.payload)
     },
-    
-    deleteTodo(state,action){
-
+    deleteCard: (state, action: PayloadAction<number>) => {
+      state.cards = state.cards.filter(card => card.id !== action.payload)
     },
-
+    setCards: (state, action: PayloadAction<Card[]>) => {
+      state.cards = action.payload
+    }
   }
 })
 
-export default TodoSlice
+export const { addCard, deleteCard, setCards } = todoSlice.actions
+export default todoSlice.reducer
